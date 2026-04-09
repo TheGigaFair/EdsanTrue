@@ -22,6 +22,9 @@ public class MovimentoController : NetworkBehaviour
     {
         characterController = GetComponent<CharacterController>();
     }
+
+
+
     public override void FixedUpdateNetwork()
     {
         if (HasStateAuthority)

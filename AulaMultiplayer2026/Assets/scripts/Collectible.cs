@@ -24,3 +24,4 @@ public class Collectible : MonoBehaviour
         transform.Rotate(0f, 0f, rotationspeed * Time.deltaTime);
     }
 }
+    

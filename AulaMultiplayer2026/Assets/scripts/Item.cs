@@ -10,6 +10,7 @@ public class Item : NetworkBehaviour
     {
         if (other.gameObject.tag == "Player" && other.GetComponent<NetworkObject>().HasInputAuthority)
         {
+            Debug.Log("O PLAYER BATEU NA CENORA VEIO");
             if (IsCollected) return;
 
             // Pega a referência do jogador local para saber quem pontuou
