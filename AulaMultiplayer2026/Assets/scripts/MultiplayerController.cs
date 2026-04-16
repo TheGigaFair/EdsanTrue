@@ -5,6 +5,7 @@ using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
 public class MultiplayerController : MonoBehaviour, INetworkRunnerCallbacks
@@ -14,6 +15,9 @@ public class MultiplayerController : MonoBehaviour, INetworkRunnerCallbacks
     NetworkRunner runner; //será criado no clique do botão Entrar
     public Canvas TelaEntrarSala; //menu da tela
     public GameObject playerPrefab;
+    public List<SessionInfo> salasDisponiveis = new List<SessionInfo>();
+    public TextMeshProUGUI ListaLobby;
+
 
     public async void EntrarSala()
     {
@@ -23,8 +27,11 @@ public class MultiplayerController : MonoBehaviour, INetworkRunnerCallbacks
             TxtErro.text = "O nome da sala não pode ser vazio!";
             return;
         }
-        runner = gameObject.AddComponent<NetworkRunner>();
-        runner.ProvideInput = true;
+        if (runner == null)
+        {
+            runner = gameObject.AddComponent<NetworkRunner>();
+            runner.ProvideInput = true;
+        }
         await runner.StartGame(new StartGameArgs()
         {
             GameMode = GameMode.Shared,
@@ -35,6 +42,17 @@ public class MultiplayerController : MonoBehaviour, INetworkRunnerCallbacks
         TelaEntrarSala.gameObject.SetActive(false);
     }
 
+
+
+    public async void ListarSalas()
+    {
+        if (runner == null)
+        {
+            runner = gameObject.AddComponent<NetworkRunner>();
+            runner.ProvideInput = true;
+        }
+        await runner.JoinSessionLobby(SessionLobby.Shared);
+    }
 
 
     public void OnConnectedToServer(NetworkRunner runner)
@@ -128,8 +146,21 @@ public class MultiplayerController : MonoBehaviour, INetworkRunnerCallbacks
 
     public void OnSessionListUpdated(NetworkRunner runner, List<SessionInfo> sessionList)
     {
-        throw new NotImplementedException();
+        salasDisponiveis = sessionList;
+        Debug.Log($"Lista de salas atualizada: {salasDisponiveis.Count} salas encontradas");
+        foreach (var sessao in salasDisponiveis)
+        {
+            Debug.Log($"Sala: {sessao.Name} - Jogadores: {sessao.PlayerCount}/{sessao.MaxPlayers}");
+            ListaLobby.text += $"Sala: {sessao.Name} - Jogadores: {sessao.PlayerCount}/{sessao.MaxPlayers}\n";
+        }
+        if (salasDisponiveis.Count == 0)
+        {
+            Debug.Log("Nenhuma sala disponível no momento.");
+            ListaLobby.text = "Nenhuma sala disponível no momento.";
+        }
     }
+
+
 
     public void OnShutdown(NetworkRunner runner, ShutdownReason shutdownReason)
     {
